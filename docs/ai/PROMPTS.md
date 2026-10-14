@@ -41,3 +41,11 @@ Tool: Claude Code (Claude Opus) acting as a senior pair engineer. I direct the w
 - A single `Clock` bean in UTC is the only source of "now"; tests can swap in a fixed clock.
 - The H2 file location is configurable via `ACME_DATA_DIR`, for the Docker volume later.
 - The frontend has strict TypeScript, Vite's dev proxy forwards `/api` to `:8080`, and a smoke test covers routing.
+
+**Follow-up: cleaning up build warnings (my request to fix the open issues one by one before step 3):**
+- Confirmed **Spring Boot 4.0.x** explicitly.
+- **H2 pinned to 2.3.232**, the newest version Flyway is verified against. Boot 4.0 manages 2.4.x by default.
+- **Mockito loaded as a `-javaagent`** through surefire instead of attaching itself at runtime, which JDK 21 warns about and future JDKs will block.
+- **springdoc enabled explicitly** in prod (the API docs are part of the deliverable) and the Swagger UI disabled in tests, so no "enabled by default in production" warnings remain.
+- **Removed the duplicate `backend/.gitattributes`.** The root file covers it.
+- **Caught while verifying:** the first manual run failed because `java` on the PATH was still JDK 17. A second run showed that H2 rejects bare relative paths (`target/x`) and needs `./target/x`; this is now documented next to `ACME_DATA_DIR`. A manual run of the real jar, not just tests, showed `/api/docs` and `/api/openapi` both returning 200.
