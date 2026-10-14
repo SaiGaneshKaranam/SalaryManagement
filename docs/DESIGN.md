@@ -19,7 +19,7 @@
 
 | Choice | Verdict |
 |---|---|
-| Java 21 / Spring Boot 3 / JPA / Flyway | Keep. |
+| Java 21 / **Spring Boot 4.0** / JPA / Flyway | Brief said Boot 3, but Boot 3.5 (last 3.x) reached end of OSS support in mid-2026 and Initializr no longer offers it. Boot 4.0.x is the supported line; for this app the differences are small (explicit Flyway starter, Jackson 3, springdoc 3.x). |
 | H2 for both tests and prod | **Keep for this assessment.** It's one SQL dialect everywhere and supports `PERCENTILE_CONT … WITHIN GROUP`, CTEs and window functions. Tests need no Docker. **In production I'd use PostgreSQL** with Testcontainers for durability, concurrency and real operations. The SQL is kept ANSI-standard so switching is mainly a config and driver change. |
 | React + TypeScript + Vite | The brief lists ReactJS/NextJS as UI options and does not make a framework mandatory, so React was chosen (decision recorded in `docs/ai/PROMPTS.md`). It is a plain SPA; Next.js SSR isn't needed because Spring serves the app. |
 | UI library choices | MUI `Table` + `TablePagination` (no `@mui/x-data-grid`), MUI `Autocomplete` for multi-select, native `<input type="date">` (no x-date-pickers), and controlled forms (no form library). |
@@ -195,7 +195,7 @@ CI (GitHub Actions) runs `./mvnw -B verify` and `npm ci && npm test && npm run b
 
 ## 12. Deployment
 A single multi-stage `Dockerfile`:
-1. `node:22` builds `frontend/dist`.
+1. `node:24` builds `frontend/dist`.
 2. `maven + temurin-21` copies `dist` into `src/main/resources/static` and packages the jar.
 3. `temurin-21-jre` runs it with H2 at `/data`.
 

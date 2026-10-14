@@ -23,3 +23,21 @@ Tool: Claude Code (Claude Opus) acting as a senior pair engineer. I direct the w
 - The groups are ad hoc and live in the URL rather than being saved. This means no new table and no admin UI, and the URL is the record. Saved job families are a possible next step.
 - In SQL, the groups become a parameter-bound mapping CTE producing a `role_key`. Every role query groups by `role_key` instead of `job_title_id`, so the outlier, percentile and pay-gap logic stays unchanged.
 - The seed includes near-synonym titles so the feature is demonstrable.
+
+---
+
+## Step 2: Scaffold backend, frontend and CI
+**Prompt intent:** Create runnable empty shells for both apps with tests passing, plus GitHub Actions running `mvn verify` and `npm test`.
+
+**What came up:**
+- **Spring Boot 3 is no longer offered by Spring Initializr.** Boot 3.5 reached the end of its free open-source support in mid-2026. The AI recommended Boot 4.0.x over the "Boot 3" in my original prompt, and I accepted. Consequences: springdoc moves to the 3.0.x line, Flyway needs its own explicit starter in Boot 4, and Jackson moves to version 3.
+- The local machine had JDK 17 only. I installed Temurin 21. The project uses the Maven Wrapper, so nobody needs a global Maven.
+- Known noise: Flyway warns that H2 2.4.240 is newer than its verified version (2.3.232). This is harmless for our SQL; revisit only if a migration misbehaves.
+
+**Key decisions:**
+- `.gitattributes` forces LF line endings, because a CRLF `mvnw` breaks Linux CI and the Docker build.
+- `spring.jpa.hibernate.ddl-auto=validate`: Flyway owns the schema and Hibernate only checks that entities match it. `open-in-view=false` keeps lazy loading out of controllers.
+- `spring.data.web.pageable.max-page-size=100` enforces the "never load 10k rows" rule at the framework level.
+- A single `Clock` bean in UTC is the only source of "now"; tests can swap in a fixed clock.
+- The H2 file location is configurable via `ACME_DATA_DIR`, for the Docker volume later.
+- The frontend has strict TypeScript, Vite's dev proxy forwards `/api` to `:8080`, and a smoke test covers routing.
