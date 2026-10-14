@@ -17,6 +17,8 @@
 	<properties>
 		<java.version>21</java.version>
 		<springdoc.version>3.0.3</springdoc.version>
+		<!-- Pinned to the newest H2 that Flyway is verified against (Boot 4.0 manages 2.4.x). -->
+		<h2.version>2.3.232</h2.version>
 	</properties>
 
 	<dependencies>
